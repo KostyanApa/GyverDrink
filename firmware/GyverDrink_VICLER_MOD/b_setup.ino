@@ -69,7 +69,9 @@ void setup() {
 
   // настройка пинов
   pinMode(PUMP_POWER, 1);
-  pinMode(SERVO_POWER, 1);
+  pinMode(PUMP2_POWER, 1);
+  pinMode(PUMP3_POWER, 1);  
+ // pinMode(SERVO_POWER, 1);
 #ifdef ANALOG_METER
   pinMode(ANALOG_METER_PIN, OUTPUT);
 #endif
@@ -126,9 +128,9 @@ void setup() {
 #elif defined OLED
   timerMinim nextSym(10);
   disp.setFont(MAIN_FONT);
-#if(MENU_LANG == 0)
+
   disp.setLetterSpacing(0);
-#endif // MENU_LANG
+
   static byte targetX = (DISP_WIDTH - strWidth(bootscreen)) / 2;
   progressBar(-1);
 #elif defined ANALOG_METER
@@ -160,9 +162,8 @@ void setup() {
       static byte currX = 128;
       if (currX > targetX) {
         disp.setFont(MAIN_FONT);
-#if(MENU_LANG == 0)
         disp.setLetterSpacing(0);
-#endif
+
         printStr(bootscreen, currX, 3);
         clearToEOL();
         currX -= 5;

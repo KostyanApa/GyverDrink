@@ -247,10 +247,10 @@ void btnTick() {
 #elif defined OLED
     disp.clear();
     disp.setFont(MAIN_FONT);
-#if(MENU_LANG == 0)
+
     disp.setLetterSpacing(0);
-#endif
-    printStr("Сброс настроек", Center, 3);
+
+    printStr(LNG_Reset, Center, 3);
 #endif
     while (!digitalRead(BTN_PIN));
     resetEEPROM();

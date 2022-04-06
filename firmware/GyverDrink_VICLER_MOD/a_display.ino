@@ -120,7 +120,7 @@ MenuPageName menuPage = MAIN_MENU_PAGE; // актуальная страница
 byte lastMenuPage = NO_MENU;            // последняя отображаемая страница. Нужна для предотвращения повторного вывода заголовка одной и той же страницы во время прокрутки.
 bool itemSelected = 0;                  // флаг нажатия на пункт меню
 
-uint8_t menuItemsNum[] = {3, 8, 3, 5, 4}; // количество строк на каждой странице без заголовка
+uint8_t menuItemsNum[] = {3, 8, 3, 7, 4}; // количество строк на каждой странице без заголовка
 
 #if(MENU_LANG == 0)
 const char *MenuPages[][9] = {
@@ -150,6 +150,13 @@ const char *MenuPages[][9] = {
   { "##### Сервис #####",
     " Двигатель",
     " Помпа",
+#ifdef PUMP2_POWER
+    " Помпа2",
+#endif
+#ifdef PUMP3_POWER
+    " Помпа3",
+#endif
+
 #ifdef BATTERY_PIN
     " Аккумулятор",
 #else

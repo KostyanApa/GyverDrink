@@ -29,11 +29,9 @@ void serviceRoutine(serviceStates mode) {
     disp.clear();
     disp.setInvertMode(1);
     clearToEOL();
-#if(MENU_LANG == 0)
-    printStr("Парковка", Center, 0);
-#else
-    printStr("Parking", Center, 0);
-#endif
+
+    printStr(LNG_Parking, Center, 0);
+
     disp.setInvertMode(0);
 #endif
     byte servoPos = parking_pos;
@@ -56,11 +54,9 @@ void serviceRoutine(serviceStates mode) {
           disp.home();
           disp.setInvertMode(1);
           clearToEOL();
-#if(MENU_LANG == 0)
-          printStr("Рюмка ", Center, 0);
-#else
-          printStr("Shot ", Center, 0);
-#endif
+
+          printStr(LNG_Shot, Center, 0);
+
           printInt(currShot + 1);
           clearToEOL();
           disp.write('\n');
@@ -68,18 +64,7 @@ void serviceRoutine(serviceStates mode) {
           printNum(servoPos, deg);
 #endif
 
-#if (MOTOR_TYPE == 0)
-          servo.setTargetDeg(servoPos);
-          servo.start();
-          servoON();
-          while (!servo.tick());
-          servoOFF();
-          break;
-#elif (MOTOR_TYPE == 1)
-          stepper.setTargetDeg(servoPos);
-          while (stepper.tick());
-          break;
-#endif
+Motor2Pos (servoPos);
         }
         if (digitalRead(SW_pins[i]) && shotStates[i] == EMPTY)  { // убрали рюмку
           strip.setLED(i, mHSV(parameterList[leds_color], 255, parameterList[stby_light]));
@@ -93,29 +78,14 @@ void serviceRoutine(serviceStates mode) {
             disp.home();
             disp.setInvertMode(1);
             clearToEOL();
-#if(MENU_LANG == 0)
-            printStr("Парковка", Center, 0);
-#else
-            printStr("Parking", Center, 0);
-#endif
+            printStr(LNG_Parking, Center, 0);
+
             clearToEOL();
             disp.write('\n');
             disp.setInvertMode(0);
 #endif
             printNum(servoPos, deg);
-#if (MOTOR_TYPE == 0)
-            servo.setTargetDeg(servoPos);
-            servo.start();
-            servoON();
-            while (!servo.tick());
-            servo.stop();
-            servoOFF();
-            break;
-#elif (MOTOR_TYPE == 1)
-            stepper.setTargetDeg(servoPos);
-            while (stepper.tick());
-            break;
-#endif
+Motor2Pos (servoPos);
           }
           else continue;  // если ещё есть поставленные рюмки -> ищем заново и попадаем в следующий блок
         }
@@ -128,29 +98,16 @@ void serviceRoutine(serviceStates mode) {
           disp.home();
           disp.setInvertMode(1);
           clearToEOL();
-#if(MENU_LANG == 0)
-          printStr("Рюмка ", Center, 0);
-#else
-          printStr("Shot ", Center, 0);
-#endif
+
+          printStr(LNG_Shot, Center, 0);
+
           printInt(currShot + 1);
           clearToEOL();
           disp.write('\n');
           disp.setInvertMode(0);
           printNum(servoPos, deg);
 #endif
-#if (MOTOR_TYPE == 0)
-          servo.setTargetDeg(servoPos);
-          servo.start();
-          servoON();
-          while (!servo.tick());
-          servoOFF();
-          break;
-#elif (MOTOR_TYPE == 1)
-          stepper.setTargetDeg(servoPos);
-          while (stepper.tick());
-          break;
-#endif
+Motor2Pos (servoPos);
         }
       }
 
@@ -239,11 +196,8 @@ void serviceRoutine(serviceStates mode) {
       disp.home();
       disp.setInvertMode(1);
       clearToEOL();
-#if(MENU_LANG == 0)
-      printStr("Зажмите энкодер", Center, 0);
-#else
-      printStr("Press encoder", Center, 0);
-#endif
+      printStr(LNG_Press_encoder, Center, 0);
+
       disp.setInvertMode(0);
 #endif
     }
@@ -252,11 +206,9 @@ void serviceRoutine(serviceStates mode) {
       disp.home();
       disp.setInvertMode(1);
       clearToEOL();
-#if(MENU_LANG == 0)
-      printStr("Поставьте рюмку", Center, 0);
-#else
-      printStr("Place shot", Center, 0);
-#endif
+
+      printStr(LNG_Place_shot, Center, 0);
+
       disp.setInvertMode(0);
 #endif
     }
@@ -271,11 +223,9 @@ void serviceRoutine(serviceStates mode) {
             disp.home();
             disp.setInvertMode(1);
             clearToEOL();
-#if(MENU_LANG == 0)
-            printStr("   Налейте 50мл   ", Center, 0);
-#else
-            printStr("   Fill 50ml   ", Center, 0);
-#endif
+
+            printStr(LNG_Fill_50ml, Center, 0);
+
             disp.setInvertMode(0);
 #endif
           }
@@ -309,11 +259,9 @@ void serviceRoutine(serviceStates mode) {
           disp.home();
           disp.setInvertMode(1);
           clearToEOL();
-#if(MENU_LANG == 0)
-          printStr("Зажмите энкодер", Center, 0);
-#else
-          printStr("Press encoder", Center, 0);
-#endif
+
+          printStr(LNG_Press_encoder, Center, 0);
+
           disp.setInvertMode(0);
 #endif
         }
@@ -330,11 +278,9 @@ void serviceRoutine(serviceStates mode) {
         disp.home();
         disp.setInvertMode(1);
         clearToEOL();
-#if(MENU_LANG == 0)
-        printStr("Поставьте рюмку", Center, 0);
-#else
-        printStr("  Place shot  ", Center, 0);
-#endif
+
+        printStr(LNG_Place_shot, Center, 0);
+
         disp.setInvertMode(0);
 #endif
       }
@@ -402,18 +348,13 @@ void serviceRoutine(serviceStates mode) {
     disp.setInvertMode(1);
     disp.setFont(MAIN_FONT);
     static byte text_offset = (DISP_WIDTH - strWidth("Фактор: 0.000")) / 2;
-#if(MENU_LANG == 0)
+
     disp.setLetterSpacing(0);
     clearToEOL();
     //    printStr("Напряжение аккум-а", Center, 0);
-    printStr("Фактор: ", text_offset, 0);
+    printStr(LNG_Factor, text_offset, 0);
     printFloat(battery_cal, 3);
-#else
-    clearToEOL();
-    //    printStr("Battery voltage", Center, 0);
-    printStr("Factor: ", text_offset, 0);
-    printFloat(battery_cal, 3);
-#endif /* MENU_LANG*/
+
     //    disp.setFont(BIG_NUM_FONT);
     disp.setInvertMode(0);
 #endif /* OLED*/
@@ -437,14 +378,10 @@ void serviceRoutine(serviceStates mode) {
 #ifdef OLED
         disp.setInvertMode(1);
         disp.setFont(MAIN_FONT);
-#if(MENU_LANG == 0)
         disp.setLetterSpacing(0);
-        printStr("Фактор: ", text_offset, 0);
+        printStr(LNG_Factor, text_offset, 0);
         printFloat(battery_cal, 3);
-#else
-        printStr("Factor: ", text_offset, 0);
-        printFloat(battery_cal, 3);
-#endif /* MENU_LANG */
+
         disp.setInvertMode(0);
 #endif /* OLED */
 
@@ -455,9 +392,9 @@ void serviceRoutine(serviceStates mode) {
         disp.scrollByte(0, 0, 0, 0, 50);
 #elif defined OLED
         disp.setFont(MAIN_FONT);
-#if(MENU_LANG == 0)
+
         disp.setLetterSpacing(0);
-#endif
+
         disp.clear();
         if (showMenu) timeoutReset();
 #endif
@@ -477,11 +414,8 @@ void editParameter(byte parameter, byte selectedRow) {
   if ( (parameter != motor_reverse) && (parameter != auto_parking) && (parameter != rainbow_flow) && (parameter != invert_display) ) { // boolean parameters
     disp.setInvertMode(0);
     printStr(MenuPages[menuPage][menuItem], 0, selectedRow);
-#if (MENU_LANG == 0)
-    clearToEOL('\'');
-#else
-    clearToEOL('.');
-#endif
+    clearToEOL(LNG_clearToEOL);
+
     disp.setInvertMode(1);
     printInt(parameterList[parameter], Right);
   }
@@ -512,21 +446,17 @@ void editParameter(byte parameter, byte selectedRow) {
       if (parameterList[parameter] <= 99 && lastParameterValue >= 100) {
         disp.setInvertMode(0);
         disp.setCursor(strWidth(MenuPages[menuPage][menuItem]), selectedRow);
-#if (MENU_LANG == 0)
-        clearToEOL('\'');
-#else
-        clearToEOL('.');//printStr(".", DISP_WIDTH - strWidth("000"));
-#endif
+
+        clearToEOL(LNG_clearToEOL);
+
         disp.setInvertMode(1);
       }
       if (parameterList[parameter] <= 9 && lastParameterValue >= 10) {
         disp.setInvertMode(0);
         disp.setCursor(strWidth(MenuPages[menuPage][menuItem]), selectedRow);
-#if (MENU_LANG == 0)
-        clearToEOL('\'');
-#else
-        clearToEOL('.');//printStr(".", DISP_WIDTH - strWidth("00"));
-#endif
+
+        clearToEOL(LNG_clearToEOL);//printStr(".", DISP_WIDTH - strWidth("00"));
+
         disp.setInvertMode(1);
       }
 
@@ -824,6 +754,8 @@ void flowRoutine() {
       progressBar(-1);
 #endif
       pumpON();                                           // НАЛИВАЙ!
+	  pump2ON();
+    pump3ON();
     }
   }
   else if (systemState == PUMPING) {                           // если качаем
@@ -850,6 +782,8 @@ void flowRoutine() {
 
     if (FLOWtimer.isReady()) {                            // если налили (таймер)
       pumpOFF();                                          // помпа выкл
+      pump2OFF();
+      pump3OFF();
       shotStates[curPumping] = READY;                     // налитая рюмка, статус: готов
 #ifdef OLED
       shots_session++;
@@ -1321,3 +1255,23 @@ void displayBattery(bool batOk) {
 }
 #endif /* OLED */
 #endif /* BATTERY_PIN */
+
+byte Motor2Pos (byte servoPos){
+#if (MOTOR_TYPE == 0)
+            servo.setTargetDeg(servoPos);
+            servo.start();
+	    #ifdef SERVO_POWER
+	     servoON();
+	    #endif
+            while (!servo.tick());
+	    servo.stop();
+	    #ifdef SERVO_POWER
+	     servoOFF();
+	    #endif
+            //break;
+#elif (MOTOR_TYPE == 1)
+            stepper.setTargetDeg(servoPos);
+            while (stepper.tick());
+            //break;
+#endif
+}

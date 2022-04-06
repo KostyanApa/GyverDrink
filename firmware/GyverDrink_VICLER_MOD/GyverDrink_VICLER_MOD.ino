@@ -110,15 +110,16 @@
 
    ====================================================================================================
 */
-
+/*
 #ifndef __AVR_ATmega328P__
 #error "Not ATmega328P board!"
 #endif
-
+*/
 //╞══════════════════════════════════════════════════════════════════════════════╡LIBS╞══════════════════════════════════════════════════════════════════════════════╡
 
 //#define USE_TICOSERVO   // использование библиотеки Adafruit_TiCoServo вместо стандартной Servo. При использовании серводвигатель подключать к пину 9 или 10!
 #include "Config.h"
+#include "locales.h"
 #if (DISPLAY_TYPE < 2)
 #include "src/microWire/microWire.h"
 #include "src/SSD1306Ascii/src/SSD1306Ascii.h"
@@ -283,11 +284,15 @@ const struct EEPROMAddress
 
 
 //╞══════════════════════════════════════════════════════════════════════════════╡MACROS╞══════════════════════════════════════════════════════════════════════════════╡
-
-#define servoON() digitalWrite(SERVO_POWER, 1)
-#define servoOFF() digitalWrite(SERVO_POWER, 0)
+ 
+#define servoON() 
+#define servoOFF() 
 #define pumpON() digitalWrite(PUMP_POWER, 1)
 #define pumpOFF() digitalWrite(PUMP_POWER, 0)
+#define pump2ON() digitalWrite(PUMP2_POWER, 1)
+#define pump2OFF() digitalWrite(PUMP2_POWER, 0)
+#define pump3ON() digitalWrite(PUMP3_POWER, 1)
+#define pump3OFF() digitalWrite(PUMP3_POWER, 0)
 
 #ifdef STATUS_LED
 #define LED leds[NUM_SHOTS]
