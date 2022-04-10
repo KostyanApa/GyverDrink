@@ -613,29 +613,35 @@ void flowRoutine() {
         shotStates[curPumping] = IN_PROCESS;              // стакан в режиме заполнения
 
         // включаем серво только если целевая позиция не совпадает с текущей
-#if (MOTOR_TYPE == 0)
+        #if (MOTOR_TYPE == 0)
         if (servo.getCurrentDeg() != shotPos[i]) {
           servo.setTargetDeg(shotPos[curPumping]);        // задаём цель
           servo.start();
           servoON();                                      // вкл питание серво
-#elif (MOTOR_TYPE == 1)
+		
+        #elif (MOTOR_TYPE == 1)
         if (stepper.getCurrentDeg() != shotPos[i]) {
           stepper.setTargetDeg(shotPos[curPumping]);
-#endif
+        #endif
           parking = false;
-#ifdef STATUS_LED
+        #ifdef STATUS_LED
           LEDblinkState = true;
           LEDchanged = true;
-#endif
-        }
+        #endif
+   		#if (MOTOR_TYPE == 0)
+         }
+	    #elif (MOTOR_TYPE == 1)
+		 }
+	    #endif
+
         else if (shotPos[i] == parking_pos) {             // если положение рюмки совпадает с парковочным
-#if (MOTOR_TYPE == 0)
+        #if (MOTOR_TYPE == 0)
           servoON();                                      // вкл питание серво
           servo.attach(SERVO_PIN, parking_pos, SERVO_MIN_US, SERVO_MAX_US);
           delay(500);
-#elif (MOTOR_TYPE == 1)
+         #elif (MOTOR_TYPE == 1)
           stepper.setTargetDeg(parking_pos);
-#endif
+         #endif
         }
 #ifdef OLED
         printNum(shotVolume[curPumping], ml);
@@ -651,72 +657,84 @@ void flowRoutine() {
       if ( (workMode == AutoMode) && parameterList[auto_parking] == 0) {                // если в авто режиме:
         systemON = false;                                 // выключили систему
         parking = true;                                   // уже на месте!
-#ifdef STATUS_LED
+        #ifdef STATUS_LED
         if (workMode == ManualMode) LED = mHSV(manualModeStatusColor, 255, STATUS_LED);
         else LED = mHSV(autoModeStatusColor, 255, STATUS_LED);
-#endif
+        #endif
       }
       else {                                              // если же в ручном режиме:
-#if (MOTOR_TYPE == 0)
+       #if (MOTOR_TYPE == 0)
         if (servo.getTargetDeg() != parking_pos) {
           servo.setTargetDeg(parking_pos);
           servo.start();
           servoON();                                        // включаем серво и паркуемся
-#elif (MOTOR_TYPE == 1)
+       #elif (MOTOR_TYPE == 1)
         if (stepper.getTargetDeg() != parking_pos) {
           stepper.setTargetDeg(parking_pos);
-#endif
-#ifdef STATUS_LED
+       #endif
+        #ifdef STATUS_LED
           LEDblinkState = true;
           LEDchanged = true;
-#endif
-#ifdef TM1637
+         #endif
+         #ifdef TM1637
           printNum(thisVolume);
-#endif
-#ifdef OLED
+         #endif
+         #ifdef OLED
 
           progressBar(thisVolume, parameterList[max_volume]);
           displayVolumeSession();
-#endif
-        }
-#if (MOTOR_TYPE == 0)
+         #endif
+		#if (MOTOR_TYPE == 0)
+         }
+	    #elif (MOTOR_TYPE == 1)
+		 }
+	    #endif
+        
+		#if (MOTOR_TYPE == 0)
         if (servo.tick()) {                               // едем до упора
           servo.stop();
           servoOFF();
-#elif (MOTOR_TYPE == 1)
+        #elif (MOTOR_TYPE == 1)
         if (!stepper.getState()) {
-#endif
+        #endif
           systemON = false;                               // выключили систему
           parking = true;                                 // на месте!
-#ifdef STATUS_LED
+        #ifdef STATUS_LED
           LEDblinkState = false;
           if (workMode == ManualMode) LED = mHSV(manualModeStatusColor, 255, STATUS_LED);
           else LED = mHSV(autoModeStatusColor, 255, STATUS_LED);
           LEDchanged = true;
-#endif
+        #endif
 //          pinMode(13, OUTPUT);
 //          digitalWrite(13, 1);
 //          delay(300);
 //          digitalWrite(13, 0);
-        }
+        		#if (MOTOR_TYPE == 0)
+         }
+	    #elif (MOTOR_TYPE == 1)
+		 }
+	    #endif
+
       }
     }
     else if ( (workMode == ManualMode) && noGlass) systemON = false;     // если в ручном режиме, припаркованны и нет рюмок - отключаемся нахрен
   }
   else if (systemState == MOVING) {                                          // движение к рюмке
-#if (MOTOR_TYPE == 0)
-    if (servo.tick()) {                                   // если приехали
-#elif (MOTOR_TYPE == 1)
-    if (!stepper.getState()) {
-#endif
-#ifdef STATUS_LED
+  bool motorState = false;
+   #if (MOTOR_TYPE == 0)
+    if (servo.tick()) {  motorState = true;}                                 // если приехали
+   #elif (MOTOR_TYPE == 1)
+    if (!stepper.getState()) { motorState = true;}
+   #endif
+   if (motorState == true){
+     #ifdef STATUS_LED
       LEDblinkState = false;
       if (workMode == ManualMode) LED = mHSV(manualModeStatusColor, 255, STATUS_LED);
       else LED = mHSV(autoModeStatusColor, 255, STATUS_LED);
       strip.show();
-#endif
+     #endif
       // обнуляем счётчик
-#ifdef OLED
+     #ifdef OLED
       disp.setFont(BIG_NUM_FONT);
       disp.setCursor(0, 2);
       clearToEOL();
@@ -727,35 +745,33 @@ void flowRoutine() {
         currX = max(currX - 3, targetX);
         printStr("0 ", currX, 2);
         disp.setCursor(currX + strWidth("0"), 5);
-#if(NUM_FONT == 0)
-        disp.setFont(BigPostfix30x16);
-#else
-        disp.setFont(BigPostfix30x16_2);
-#endif
+        #if(NUM_FONT == 0)
+         disp.setFont(BigPostfix30x16);
+        #else
+         disp.setFont(BigPostfix30x16_2);
+        #endif
         disp.write('%');
         disp.setFont(BIG_NUM_FONT);
       }
       displayVolumeSession();
-#endif
+     #endif
 
       systemState = PUMPING;                              // режим - наливание
       if (!prepumped) {
         prepump_volume = PREPUMP_VOLUME; // если самая первая рюмка - учитываем прокачку
         prepumped = true;
       }
-      else prepump_volume = 0;
+      else {prepump_volume = 0;}
       delay(300);
       FLOWtimer.setInterval((long)(shotVolume[curPumping] + prepump_volume) * time50ml / 50);  // перенастроили таймер
       FLOWtimer.reset();                                  // сброс таймера
       actualVolume = 0;
       volumeCounter = 0;
       volumeColor[curPumping] = 0;
-#ifdef OLED
-      progressBar(-1);
-#endif
+      #ifdef OLED
+       progressBar(-1);
+      #endif
       pumpON();                                           // НАЛИВАЙ!
-	  pump2ON();
-    pump3ON();
     }
   }
   else if (systemState == PUMPING) {                           // если качаем
@@ -769,11 +785,11 @@ void flowRoutine() {
 
       //      tDiffMax = 0;
 
-#ifdef OLED
+     #ifdef OLED
       volume_session++;
       displayVolumeSession();
       progressBar(actualVolume, shotVolume[curPumping]);
-#endif
+     #endif
     }
 
     strip.setLED(curPumping, mHSV(volumeColor[curPumping] + parameterList[leds_color], 255, 255));
@@ -782,14 +798,12 @@ void flowRoutine() {
 
     if (FLOWtimer.isReady()) {                            // если налили (таймер)
       pumpOFF();                                          // помпа выкл
-      pump2OFF();
-      pump3OFF();
       shotStates[curPumping] = READY;                     // налитая рюмка, статус: готов
-#ifdef OLED
+     #ifdef OLED
       shots_session++;
       volume_overall += actualVolume;
       EEPROM.put(eeAddress._volume_overall, volume_overall);
-#endif
+     #endif  
       curPumping = -1;                                    // снимаем выбор рюмки
       systemState = WAIT;                                 // режим работы - ждать
       WAITtimer.reset();
