@@ -93,10 +93,10 @@ void setup() {
   servoOFF();
   parking = true;
   Timer2.setPeriod(5000);
-#elif (MOTOR_TYPE == 1) // настройка шаговика
-#ifdef STEPPER_ENDSTOP
-  pinMode(STEPPER_ENDSTOP, INPUT_PULLUP);
-#endif
+ #elif (MOTOR_TYPE == 1) // настройка шаговика
+  #ifdef STEPPER_ENDSTOP
+   pinMode(STEPPER_ENDSTOP, INPUT_PULLUP);
+  #endif
   stepper.setRunMode(FOLLOW_POS);
   stepper.setMaxSpeedDeg(parameterList[motor_speed]);
   stepper.setAccelerationDeg(MOTOR_ACCEL);
