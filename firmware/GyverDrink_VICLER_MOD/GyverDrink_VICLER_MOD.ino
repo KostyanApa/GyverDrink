@@ -178,7 +178,7 @@ int8_t curSelected = -1;
 int8_t selectShot = -1;
 uint8_t shotCount = 0;
 enum { NO_GLASS, EMPTY, IN_PROCESS, READY } shotStates[NUM_SHOTS];
-enum { SEARCH, MOVING, WAIT, PUMPING } systemState;
+enum { SEARCH, MOVING, WAIT, PUMPING, PUMPING2, PUMPING3 } systemState;
 enum serviceStates { POSITION, VOLUME, BATTERY } serviceState;
 enum workModes { ManualMode, AutoMode } workMode;
 uint16_t time50ml = TIME_50ML;
