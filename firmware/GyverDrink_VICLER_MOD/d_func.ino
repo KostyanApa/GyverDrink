@@ -770,7 +770,7 @@ void flowRoutine() {
         EEPROM.update(eeAddress._thisVolume, thisVolume);
       }
     }
-  // если качаем end PUMPING
+  break;// если качаем end PUMPING
   case WAIT:
     actualVolume = 0;
     if (WAITtimer.isReady())
