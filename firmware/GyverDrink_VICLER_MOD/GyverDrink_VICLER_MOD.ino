@@ -170,7 +170,9 @@ timerMinim POWEROFFtimer(TIMEOUT_OFF * 60000L);
 timerMinim KEEP_POWERtimer(KEEP_POWER * 1000L);
 
 
-#define INIT_VOLUME 25
+#define INIT_VOLUME 15
+#define INIT_VOLUME2 15
+#define INIT_VOLUME3 35
 bool LEDchanged = false;
 bool pumping = false;
 int8_t curPumping = -1;
@@ -182,12 +184,20 @@ enum { SEARCH, MOVING, WAIT, PUMPING } systemState;
 enum serviceStates { POSITION, VOLUME, BATTERY } serviceState;
 enum workModes { ManualMode, AutoMode } workMode;
 uint16_t time50ml = TIME_50ML;
+uint16_t time50ml2 = TIME_50ML2;
+uint16_t time50ml3 = TIME_50ML3;
 uint8_t thisVolume = INIT_VOLUME;
+uint8_t thisVolume2 = INIT_VOLUME2;
+uint8_t thisVolume3 = INIT_VOLUME3;
 uint8_t shotVolume[NUM_SHOTS];
+uint8_t shotVolume2[NUM_SHOTS];
+uint8_t shotVolume3[NUM_SHOTS];
 uint8_t initShotPos[] = {SHOT_POSITIONS};
 uint8_t shotPos[] = {SHOT_POSITIONS};
 const byte SW_pins[] = {SW_PINS};
 float volumeTick = 20.0 * 50.0 / time50ml;  // volume in one FLOWdebounce timer tick
+float volumeTick2 = 20.0 * 50.0 / time50ml2;  // volume in one FLOWdebounce timer tick
+float volumeTick3 = 20.0 * 50.0 / time50ml3;  // volume in one FLOWdebounce timer tick
 uint8_t actualVolume = 0;
 float volumeCounter = 0;
 bool systemON = false;
@@ -210,8 +220,9 @@ const int autoModeStatusColor = AUTO_MODE_STATUS_COLOR / 360.0 * 255;
 bool prepumped = false;
 bool serviceBoot = false;
 bool dispSTBicon = false;
-
-
+bool PumpAfterMoving = false;
+byte nextPump=0;
+byte curentPupm=0;
 
 #if(DISPLAY_TYPE < 3) // OLED
 int16_t shots_session = 0, volume_overall = 0;
@@ -259,7 +270,9 @@ const struct EEPROMAddress
 {
   const byte _thisVolume = 0;
   const byte _time50ml = _thisVolume + sizeof(thisVolume);
-  const byte _shotPos = _time50ml + sizeof(time50ml);
+  const byte _time50ml2 = _time50ml + sizeof(time50ml);
+  const byte _time50ml3 = _time50ml2 + sizeof(time50ml2);
+  const byte _shotPos = _time50ml3 + sizeof(time50ml3);
   const byte _parking_pos = _shotPos + sizeof(byte) * NUM_SHOTS;
   const byte _workMode = _parking_pos + sizeof(parking_pos);
   const byte _battery_cal = _workMode + sizeof(byte);
@@ -287,12 +300,12 @@ const struct EEPROMAddress
  
 #define servoON() 
 #define servoOFF() 
-#define pumpON() digitalWrite(PUMP_POWER, 1)
-#define pumpOFF() digitalWrite(PUMP_POWER, 0)
-#define pump2ON() digitalWrite(PUMP2_POWER, 1)
-#define pump2OFF() digitalWrite(PUMP2_POWER, 0)
-#define pump3ON() digitalWrite(PUMP3_POWER, 1)
-#define pump3OFF() digitalWrite(PUMP3_POWER, 0)
+#define pumpON() digitalWrite(PUMP_POWER, 0)
+#define pumpOFF() digitalWrite(PUMP_POWER, 1)
+#define pump2ON() digitalWrite(PUMP2_POWER, 0)
+#define pump2OFF() digitalWrite(PUMP2_POWER, 1)
+#define pump3ON() digitalWrite(PUMP3_POWER, 0)
+#define pump3OFF() digitalWrite(PUMP3_POWER, 1)
 
 #ifdef STATUS_LED
 #define LED leds[NUM_SHOTS]

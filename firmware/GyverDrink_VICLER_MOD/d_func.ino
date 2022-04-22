@@ -709,7 +709,7 @@ void flowRoutine() {
 //          digitalWrite(13, 1);
 //          delay(300);
 //          digitalWrite(13, 0);
-        		#if (MOTOR_TYPE == 0)
+        #if (MOTOR_TYPE == 0)
          }
 	    #elif (MOTOR_TYPE == 1)
 		 }
@@ -763,41 +763,119 @@ void flowRoutine() {
       }
       else {prepump_volume = 0;}
       delay(300);
-      FLOWtimer.setInterval((long)(shotVolume[curPumping] + prepump_volume) * time50ml / 50);  // перенастроили таймер
-      FLOWtimer.reset();                                  // сброс таймера
-      actualVolume = 0;
+      
+
+	    PumpAfterMoving = true;
+		curentPupm=1;
+                                                // НАЛИВАЙ!
+    }
+  }
+  else if (systemState == PUMPING) {                           // если качаем
+ 
+     if (PumpAfterMoving==true){
+		 switch (curentPupm) {
+          case 1:
+		        actualVolume = 0;
       volumeCounter = 0;
       volumeColor[curPumping] = 0;
       #ifdef OLED
        progressBar(-1);
       #endif
-      pumpON();                                           // НАЛИВАЙ!
-    }
-  }
-  else if (systemState == PUMPING) {                           // если качаем
-    //    static long tStart, tDiff, tDiffMax = 0;
-    //    tStart = millis();
+		 FLOWtimer.setInterval((long)(shotVolume[curPumping] + prepump_volume) * time50ml / 50);  // перенастроили таймер
+         FLOWtimer.reset();                                  // сброс таймера
+		 pumpON();
+          break;
 
+          case 2:
+	        actualVolume = 0;
+            volumeCounter = 0;
+            volumeColor[curPumping] = 0;
+             #ifdef OLED
+              progressBar(-1);
+             #endif
+		 FLOWtimer.setInterval((long)(shotVolume2[curPumping] + prepump_volume) * time50ml2 / 50);  // перенастроили таймер
+         FLOWtimer.reset();                                  // сброс таймера
+		 pump2ON();
+          break;
+	      case 3:
+		        actualVolume = 0;
+      volumeCounter = 0;
+      volumeColor[curPumping] = 0;
+      #ifdef OLED
+       progressBar(-1);
+      #endif
+		 FLOWtimer.setInterval((long)(shotVolume3[curPumping] + prepump_volume) * time50ml3 / 50);  // перенастроили таймер
+         FLOWtimer.reset();                                  // сброс таймера
+		 pump3ON();
+          break;
+     }               
+
+   PumpAfterMoving = false;
+	 }
+	 
+	 switch (curentPupm) {
+          case 1:
     volumeCounter += volumeTick;
     if ((byte)volumeCounter > actualVolume + prepump_volume) {
       actualVolume++;
       printNum(actualVolume, ml);
-
-      //      tDiffMax = 0;
-
      #ifdef OLED
       volume_session++;
       displayVolumeSession();
       progressBar(actualVolume, shotVolume[curPumping]);
      #endif
     }
-
+          break;
+          case 2:
+    volumeCounter += volumeTick2;
+    if ((byte)volumeCounter > actualVolume + prepump_volume) {
+      actualVolume++;
+      printNum(actualVolume, ml);
+     #ifdef OLED
+      volume_session++;
+      displayVolumeSession();
+      progressBar(actualVolume, shotVolume[curPumping]);
+     #endif
+    }
+          break;
+	      case 3:
+           volumeCounter += volumeTick3;
+           if ((byte)volumeCounter > actualVolume + prepump_volume) {
+           actualVolume++;
+           printNum(actualVolume, ml);
+           #ifdef OLED
+             volume_session++;
+             displayVolumeSession();
+             progressBar(actualVolume, shotVolume[curPumping]);
+            #endif
+           }
+          break;
+     }                  
     strip.setLED(curPumping, mHSV(volumeColor[curPumping] + parameterList[leds_color], 255, 255));
     volumeColor[curPumping]++;
     LEDchanged = true;
 
     if (FLOWtimer.isReady()) {                            // если налили (таймер)
-      pumpOFF();                                          // помпа выкл
+		if (curentPupm<3){
+		 switch (curentPupm) {
+          case 1:
+           pumpOFF();
+		   delay(300);
+          break;
+          case 2:
+           pump2OFF();
+		   delay(300);
+          break;
+	      case 3:
+           pump3OFF();
+		   delay(300);
+          break;
+     }                                           // помпа выкл	
+	 curentPupm++;	
+	 PumpAfterMoving=true;
+
+		}else{
+      pump3OFF();
       shotStates[curPumping] = READY;                     // налитая рюмка, статус: готов
      #ifdef OLED
       shots_session++;
@@ -813,13 +891,7 @@ void flowRoutine() {
       }
     }
 
-    //    tDiff = millis() - tStart;
-    //    if (tDiff > tDiffMax) {
-    //      tDiffMax = tDiff;
-    //      disp.setFont(MAIN_FONT);
-    //      printStr("  ", Left, 0);
-    //      printInt(tDiffMax, Left, 0);
-    //    }
+	}
   }
   else if (systemState == WAIT) {
     actualVolume = 0;

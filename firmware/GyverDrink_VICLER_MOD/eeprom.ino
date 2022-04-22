@@ -18,11 +18,17 @@ void readEEPROM() {
 #elif defined OLED
   thisVolume = min(EEPROM.read(eeAddress._thisVolume), EEPROM.read(eeAddress._max_volume));  // чтение последнего налитого объёма
 #endif
-  for (byte i = 0; i < NUM_SHOTS; i++) shotVolume[i] = thisVolume;
+  
 
   EEPROM.get(eeAddress._time50ml, time50ml);  // чтение значения таймера для 50мл
+  EEPROM.get(eeAddress._time50ml2, time50ml2);  // чтение значения таймера для 50мл
+  EEPROM.get(eeAddress._time50ml3, time50ml3);  // чтение значения таймера для 50мл
   volumeTick = 20.0 * 50.0 / time50ml;
-
+  for (byte i = 0; i < NUM_SHOTS; i++) {
+	  shotVolume[i] = thisVolume;
+	  shotVolume2[i] = thisVolume2;
+	  shotVolume3[i] = thisVolume3;
+  }
   for (byte i = 0; i < NUM_SHOTS; i++) shotPos[i] = EEPROM.read(eeAddress._shotPos + i);  // чтение позиций серво над рюмками
 
   parking_pos = EEPROM.read(eeAddress._parking_pos);  // чтение парковочной позиции
@@ -84,6 +90,8 @@ void resetEEPROM() {
   EEPROM.update(eeAddress._thisVolume, INIT_VOLUME);  // сброс последнего значения объёма
 
   EEPROM.put(eeAddress._time50ml, TIME_50ML); // сброс калибровки времени на 50мл
+  EEPROM.put(eeAddress._time50ml2, TIME_50ML2); // сброс калибровки времени на 50мл
+  EEPROM.put(eeAddress._time50ml3, TIME_50ML3); // сброс калибровки времени на 50мл
 
   for (byte i = 0; i < NUM_SHOTS; i++) {  // сброс позиций серво над рюмками
     EEPROM.update(eeAddress._shotPos + i, initShotPos[i]);
