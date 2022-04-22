@@ -68,9 +68,9 @@ void setup() {
   strip.clear();
 
   // настройка пинов
-  pinMode(PUMP_POWER, 1);
-  pinMode(PUMP2_POWER, 1);
-  pinMode(PUMP3_POWER, 1);  
+   for (byte i = 0; i < PumpsPower; i++) {
+    pinMode(PumpsPower[i], 1);
+   }
  // pinMode(SERVO_POWER, 1);
 #ifdef ANALOG_METER
   pinMode(ANALOG_METER_PIN, OUTPUT);

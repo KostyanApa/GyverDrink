@@ -17,9 +17,9 @@
 void loop() {
   while (1) {
 
-#ifdef BATTERY_PIN
+   #ifdef BATTERY_PIN
     while (!battery_watchdog() && !showMenu);
-#endif
+   #endif
     encTick();
     btnTick();
     flowTick();
