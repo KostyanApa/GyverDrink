@@ -300,9 +300,9 @@ void serviceRoutine(serviceStates mode) {
     disp.clear();
     // сохраняем настройки таймера налива
     if (pumpTime > 0) {
-      time50ml = pumpTime;
-      volumeTick = 20.0 * 50.0 / time50ml;
-      EEPROM.put(eeAddress._time50ml, pumpTime);
+      time50mlX = pumpTime;
+      volumeTick = 20.0 * 50.0 / time50mlX;
+      EEPROM.put(eeAddress._time50ml1, pumpTime); //need change
     }
   }
 
@@ -726,7 +726,17 @@ void flowRoutine() {
       }
       else {prepump_volume = 0;}
       delay(300);
-      FLOWtimer.setInterval((long)(shotVolume[curPumping] + prepump_volume) * time50ml / 50);  // перенастроили таймер
+                                      
+	  pumpFistStart=1; // НАЛИВАЙ!
+	  currentPump=1; //выбор текущего насоса
+	  PumpNow=0; //текущий включенный насос
+    }
+  break;   //end MOVING движение к рюмке
+  case PUMPING: // если качаем
+    //    static long tStart, tDiff, tDiffMax = 0;
+    //    tStart = millis();
+	if (pumpFistStart=1 && currentPump!=PumpNow){ // первое вхождение в  наливайку с этим насосом.
+	  FLOWtimer.setInterval((long)(shotVolume[curPumping] + prepump_volume) * time50ml[currentPump]/ 50);  // перенастроили таймер
       FLOWtimer.reset();                                  // сброс таймера
       actualVolume = 0;
       volumeCounter = 0;
@@ -734,12 +744,10 @@ void flowRoutine() {
       #ifdef OLED
        progressBar(-1);
       #endif
-      pumpON();                                           // НАЛИВАЙ!
-    }
-  break;   //end MOVING движение к рюмке
-  case PUMPING: // если качаем
-    //    static long tStart, tDiff, tDiffMax = 0;
-    //    tStart = millis();
+      pumpON(PumpsPower[currentPump]);     
+	  pumpFistStart=0;  // end первое вхождение в  наливайку 
+	  PumpNow=currentPump; // с этим насосом.
+	}
     volumeCounter += volumeTick;
     if ((byte)volumeCounter > actualVolume + prepump_volume) {
       actualVolume++;
@@ -754,8 +762,13 @@ void flowRoutine() {
     strip.setLED(curPumping, mHSV(volumeColor[curPumping] + parameterList[leds_color], 255, 255));
     volumeColor[curPumping]++;
     LEDchanged = true;
-    if (FLOWtimer.isReady()) {                            // если налили (таймер)
-      pumpOFF();                                          // помпа выкл
+    if (FLOWtimer.isReady() ) {		// если налили (таймер)
+	 if (currentPump < Num_PUMP){ //если текущий насос не последний, тормозим этот, передаем в начало с другим насосом
+      pumpOFF(PumpsPower[currentPump]);                                          // помпа выкл
+	  currentPump++;
+	  pumpFistStart=1;
+	 }else{ //если текущий насос  последний
+	  pumpOFF(PumpsPower[currentPump]);                                          // помпа выкл
       shotStates[curPumping] = READY;                     // налитая рюмка, статус: готов
      #ifdef OLED
       shots_session++;
@@ -769,6 +782,7 @@ void flowRoutine() {
         volumeChanged = false;
         EEPROM.update(eeAddress._thisVolume, thisVolume);
       }
+	 }
     }
   break;// если качаем end PUMPING
   case WAIT:

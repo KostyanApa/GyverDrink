@@ -181,13 +181,16 @@ enum { NO_GLASS, EMPTY, IN_PROCESS, READY } shotStates[NUM_SHOTS];
 enum { SEARCH, MOVING, WAIT, PUMPING, PUMPING2, PUMPING3 } systemState;
 enum serviceStates { POSITION, VOLUME, BATTERY } serviceState;
 enum workModes { ManualMode, AutoMode } workMode;
-uint16_t time50ml = TIME_50ML;
+//  for (byte i = 0; i < Num_PUMP; i++) {
+uint16_t time50ml[] = {TIME_50ML};
+uint16_t time50mlX=0;
+///  }
 uint8_t thisVolume = INIT_VOLUME;
 uint8_t shotVolume[NUM_SHOTS];
 uint8_t initShotPos[] = {SHOT_POSITIONS};
 uint8_t shotPos[] = {SHOT_POSITIONS};
 const byte SW_pins[] = {SW_PINS};
-float volumeTick = 20.0 * 50.0 / time50ml;  // volume in one FLOWdebounce timer tick
+float volumeTick = 20.0 * 50.0 / time50ml[1];  // volume in one FLOWdebounce timer tick
 uint8_t actualVolume = 0;
 float volumeCounter = 0;
 bool systemON = false;
@@ -210,8 +213,11 @@ const int autoModeStatusColor = AUTO_MODE_STATUS_COLOR / 360.0 * 255;
 bool prepumped = false;
 bool serviceBoot = false;
 bool dispSTBicon = false;
-
-
+byte pumpFistStart = 0;
+uint8_t SHOT_Pump[Num_PUMP];
+uint8_t shotPump50Ml[Num_PUMP];
+byte currentPump=0;
+byte PumpNow=0;
 
 #if(DISPLAY_TYPE < 3) // OLED
 int16_t shots_session = 0, volume_overall = 0;
@@ -258,8 +264,9 @@ uint8_t parameterList[] = {
 const struct EEPROMAddress
 {
   const byte _thisVolume = 0;
-  const byte _time50ml = _thisVolume + sizeof(thisVolume);
-  const byte _shotPos = _time50ml + sizeof(time50ml);
+  const byte _time50ml = _thisVolume + sizeof(thisVolume)*Num_PUMP;
+	const byte _shotPos = _time50ml + sizeof(time50ml);
+	const byte _time50ml1 = _thisVolume + sizeof(thisVolume); //need change
   const byte _parking_pos = _shotPos + sizeof(byte) * NUM_SHOTS;
   const byte _workMode = _parking_pos + sizeof(parking_pos);
   const byte _battery_cal = _workMode + sizeof(byte);
@@ -284,15 +291,9 @@ const struct EEPROMAddress
 
 
 //╞══════════════════════════════════════════════════════════════════════════════╡MACROS╞══════════════════════════════════════════════════════════════════════════════╡
- 
+
 #define servoON() 
 #define servoOFF() 
-#define pumpON() digitalWrite(PUMP_POWER, 1)
-#define pumpOFF() digitalWrite(PUMP_POWER, 0)
-#define pump2ON() digitalWrite(PUMP2_POWER, 1)
-#define pump2OFF() digitalWrite(PUMP2_POWER, 0)
-#define pump3ON() digitalWrite(PUMP3_POWER, 1)
-#define pump3OFF() digitalWrite(PUMP3_POWER, 0)
 
 #ifdef STATUS_LED
 #define LED leds[NUM_SHOTS]
@@ -301,3 +302,11 @@ const struct EEPROMAddress
 #if (MOTOR_TYPE == 1) && defined STEPPER_ENDSTOP
 #define ENDSTOP_STATUS (!digitalRead(STEPPER_ENDSTOP))
 #endif
+
+pumpON (byte PUMP_PIN = 2){
+ digitalWrite(PUMP_PIN, 1);
+}
+
+pumpOFF (byte PUMP_PIN = 2){
+ digitalWrite(PUMP_PIN, 0);
+}
